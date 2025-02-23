@@ -18,16 +18,6 @@
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        label {
-            font-weight: bold;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
         button {
             background-color: #379683;
             color: white;
@@ -41,8 +31,18 @@
             background-color: #05386B;
         }
         .message {
-            color: red;
             font-weight: bold;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .error {
+            background-color: #FFCCCC;
+            color: #CC0000;
+        }
+        .success {
+            background-color: #CCFFCC;
+            color: #008000;
         }
         #replacementEmployeeNameContainer {
             display: none;
@@ -68,14 +68,24 @@
 <body>
     <div class="container">
         <h2>Cập Nhật Lịch Làm Việc</h2>
-        
-        <% String message = (String) request.getAttribute("message");
-           if (message != null) { %>
-            <p class="message"><%= message %></p>
+
+        <%-- Hiển thị thông báo từ servlet --%>
+        <% 
+            String message = (String) request.getAttribute("message");
+            String messageType = (String) request.getAttribute("messageType");
+            if (message != null) { 
+        %>
+            <p class="message <%= messageType %>"><%= message %></p>
         <% } %>
 
+        <%-- Lấy scheduleId từ request và hiển thị --%>
+        <%
+            String scheduleId = (String) request.getAttribute("scheduleId");
+        %>
+
         <form action="updateStaffSchedule" method="POST">
-            <input type="hidden" name="scheduleId" value="<%= request.getAttribute("scheduleId") %>">
+            <label for="scheduleId">ID Lịch Làm Việc:</label>
+            <input type="text" id="scheduleId" name="scheduleId" value="<%= scheduleId != null ? scheduleId : "" %>" readonly>
 
             <label for="employeeName">Nhân viên:</label>
             <input type="text" id="employeeName" name="employeeName" value="<%= request.getAttribute("employeeName") %>" required>
@@ -110,7 +120,7 @@
             <input type="text" id="managerName" name="managerName" value="<%= request.getAttribute("managerName") != null ? request.getAttribute("managerName") : "" %>" required>
 
             <button type="submit">Cập nhật</button>
-            <button type="button" onclick="window.location.href='staffSchedule'">Quay lại</button>
+            <button type="button" onclick="window.location.href = 'staffSchedule'">Quay lại</button>
         </form>
     </div>
 </body>

@@ -141,7 +141,7 @@
                             </c:choose>
                         </td>
                         <td>
-                            <button class="assign-btn" onclick="assignStaff(${schedule.shiftId})">Gán nhân viên</button>
+                          
                             <button class="update-btn" onclick="location.href='updateStaffSchedule.jsp?shiftId=${schedule.shiftId}'">Cập nhật</button>
 
                             <!-- Nút Xóa -->

@@ -22,6 +22,12 @@ import model.StaffSchedule;
 @WebServlet(name = "StaffScheduleServlet", urlPatterns = {"/staffSchedule"})
 public class StaffScheduleServlet extends HttpServlet {
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         StaffScheduleDAO dao = new StaffScheduleDAO();
@@ -30,4 +36,5 @@ public class StaffScheduleServlet extends HttpServlet {
         request.setAttribute("schedules", schedules);
         request.getRequestDispatcher("/staffSchedule.jsp").forward(request, response);
     }
+
 }

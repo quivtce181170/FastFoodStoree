@@ -154,6 +154,7 @@ public class StaffScheduleDAO extends DBContext {
         }
         return false;
     }
+
     public boolean updateSchedule(int scheduleId, String employeeName, String shiftDate, String shiftTime, String status, String notes, String managerName, String replacementEmployeeName) {
     String getUserIdQuery = "SELECT user_id FROM Users WHERE full_name = ?";
     Integer employeeId = null, managerId = null, replacementEmployeeId = null;
@@ -206,31 +207,18 @@ public class StaffScheduleDAO extends DBContext {
             ps.setString(3, shiftTime);
             ps.setString(4, status);
             ps.setString(5, notes);
-            if (managerId != null) {
-                ps.setInt(6, managerId);
-            } else {
-                ps.setNull(6, java.sql.Types.INTEGER);
-            }
-            if (replacementEmployeeId != null) {
-                ps.setInt(7, replacementEmployeeId);
-            } else {
-                ps.setNull(7, java.sql.Types.INTEGER);
-            }
+            ps.setObject(6, (managerId != null) ? managerId : null, java.sql.Types.INTEGER);
+            ps.setObject(7, (replacementEmployeeId != null) ? replacementEmployeeId : null, java.sql.Types.INTEGER);
             ps.setInt(8, scheduleId);
 
             int rowsUpdated = ps.executeUpdate();
             return rowsUpdated > 0;
         }
+
     } catch (SQLException e) {
         System.out.println("❌ Lỗi khi cập nhật lịch làm việc: " + e.getMessage());
         return false;
     }
 }
 
-
-   
-    }
-
-
-
-
+}
