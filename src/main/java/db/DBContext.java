@@ -24,7 +24,7 @@ public class DBContext {
     public DBContext() {
         try {
             String user = "sa";
-            String url = "jdbc:sqlserver://127.0.0.1:1433;databaseName=Text5;encrypt=false";
+            String url = "jdbc:sqlserver://127.0.0.1:1433;databaseName=SnackZone;encrypt=false";
             String pass = "Qui180204";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             conn = DriverManager.getConnection(url, user, pass);

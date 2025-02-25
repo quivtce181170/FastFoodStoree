@@ -59,7 +59,7 @@
                 color: #E74C3C;
                 font-weight: bold;
             }
-            .assign-btn, .delete-btn, .update-btn {
+            .update-btn, .delete-btn {
                 background-color: #5CDB95;
                 color: white;
                 border: none;
@@ -68,7 +68,7 @@
                 border-radius: 5px;
                 margin-right: 5px;
             }
-            .assign-btn:hover, .update-btn:hover {
+            .update-btn:hover {
                 background-color: #379683;
             }
             .delete-btn {
@@ -83,10 +83,10 @@
         <h2>Lịch Làm Việc Nhân Viên</h2>
 
         <div class="btn-container">
-            <button onclick="location.href='createStaffSchedule'">Tạo Lịch Mới</button>
+            <button onclick="location.href = 'createStaffSchedule'">Tạo Lịch Mới</button>
+
         </div>
 
-        <!-- Hiển thị thông báo -->
         <c:if test="${not empty message}">
             <p style="color: green; text-align: center;">${message}</p>
         </c:if>
@@ -141,10 +141,10 @@
                             </c:choose>
                         </td>
                         <td>
-                          
-                            <button class="update-btn" onclick="location.href='updateStaffSchedule.jsp?shiftId=${schedule.shiftId}'">Cập nhật</button>
+                           <button class="update-btn" onclick="location.href = 'updateStaffSchedule?shiftId=${schedule.shiftId}'">Cập nhật</button>
 
-                            <!-- Nút Xóa -->
+
+
                             <form action="DeleteSchedule" method="post" onsubmit="return confirmDelete(${schedule.shiftId})" style="display:inline;">
                                 <input type="hidden" name="scheduleId" value="${schedule.shiftId}">
                                 <button type="submit" class="delete-btn">Xóa</button>
@@ -156,22 +156,6 @@
         </table>
 
         <script>
-            function assignStaff(shiftId) {
-                if (confirm("Bạn có chắc chắn muốn gán nhân viên này vào ca làm không?")) {
-                    fetch('updateShiftStatus.jsp', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                        body: 'shiftId=' + shiftId
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        alert("Cập nhật thành công!");
-                        location.reload();
-                    })
-                    .catch(error => alert("Có lỗi xảy ra!"));
-                }
-            }
-
             function confirmDelete(shiftId) {
                 return confirm("Bạn có chắc chắn muốn xóa ca làm ID " + shiftId + " không?");
             }

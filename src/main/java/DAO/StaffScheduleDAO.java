@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.ShiftRegistration;
 import model.StaffSchedule;
 
 public class StaffScheduleDAO extends DBContext {
@@ -155,70 +156,151 @@ public class StaffScheduleDAO extends DBContext {
         return false;
     }
 
-    public boolean updateSchedule(int scheduleId, String employeeName, String shiftDate, String shiftTime, String status, String notes, String managerName, String replacementEmployeeName) {
-    String getUserIdQuery = "SELECT user_id FROM Users WHERE full_name = ?";
-    Integer employeeId = null, managerId = null, replacementEmployeeId = null;
+    public boolean updateSchedule(int shiftId, String employeeName, String managerName,
+            String replacementEmployeeName, String shiftDate,
+            String shiftTime, String status, String notes) {
+        String updateQuery = ""
+                + "IF EXISTS (SELECT 1 FROM Users WHERE full_name = ?) "
+                + "AND EXISTS (SELECT 1 FROM Users WHERE full_name = ?) "
+                + "AND EXISTS (SELECT 1 FROM Users WHERE full_name = ?) "
+                + "BEGIN "
+                + "    UPDATE ss "
+                + "    SET ss.employee_id = u1.user_id, "
+                + "        ss.manager_id = u2.user_id, "
+                + "        ss.replacement_employee_id = u3.user_id, "
+                + "        ss.shift_date = ?, "
+                + "        ss.shift_time = ?, "
+                + "        ss.status = ?, "
+                + "        ss.notes = ? "
+                + "    FROM StaffSchedule ss "
+                + "    JOIN Users u1 ON u1.full_name = ? "
+                + "    JOIN Users u2 ON u2.full_name = ? "
+                + "    LEFT JOIN Users u3 ON u3.full_name = ? "
+                + "    WHERE ss.shift_id = ?; "
+                + "END "
+                + "ELSE "
+                + "BEGIN "
+                + "    PRINT 'Một trong các tên nhân viên, quản lý hoặc nhân viên thay thế không tồn tại'; "
+                + "END";
 
-    try {
-        // 🔍 Tìm employee_id
-        try (PreparedStatement ps = conn.prepareStatement(getUserIdQuery)) {
+        try ( PreparedStatement ps = conn.prepareStatement(updateQuery)) {
+            // Kiểm tra tồn tại của các tên trong bảng Users
             ps.setString(1, employeeName);
-            ResultSet rs = ps.executeQuery();
+            ps.setString(2, managerName);
+            ps.setString(3, replacementEmployeeName);
+
+            // Gán giá trị cho câu lệnh UPDATE
+            ps.setString(4, shiftDate);
+            ps.setString(5, shiftTime);
+            ps.setString(6, status);
+            ps.setString(7, notes);
+
+            // Gán giá trị cho các tham số JOIN
+            ps.setString(8, employeeName);
+            ps.setString(9, managerName);
+            ps.setString(10, replacementEmployeeName);
+
+            // Gán giá trị cho shift_id
+            ps.setInt(11, shiftId);
+
+            // Thực thi câu lệnh
+            int rowsUpdated = ps.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<ShiftRegistration> getAllShiftRegistrations() {
+        List<ShiftRegistration> shiftRegistrations = new ArrayList<>();
+        String query = "SELECT "
+                + "sr.registration_id, "
+                + "u.full_name AS employee_name, "
+                + "sr.shift_date, "
+                + "sr.shift_time, "
+                + "sr.request_status, "
+                + "sr.notes, "
+                + "m.full_name AS manager_name, "
+                + "sr.approval_date, "
+                + "sr.created_date "
+                + "FROM ShiftRegistration sr "
+                + "JOIN Users u ON sr.employee_id = u.user_id "
+                + "LEFT JOIN Users m ON sr.manager_id = m.user_id"; // LEFT JOIN để lấy tên manager nếu có
+
+        try ( ResultSet rs = execSelectQuery(query)) {
+            while (rs.next()) {
+                shiftRegistrations.add(new ShiftRegistration(
+                        rs.getInt("registration_id"),
+                        rs.getString("employee_name"),
+                        rs.getDate("shift_date"),
+                        rs.getString("shift_time"),
+                        rs.getString("request_status"),
+                        rs.getString("notes"),
+                        rs.getString("manager_name"),
+                        rs.getDate("approval_date"),
+                        rs.getDate("created_date")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Lỗi khi lấy danh sách đăng ký ca làm việc: " + e.getMessage());
+        }
+        return shiftRegistrations;
+    }
+
+    public boolean insertShiftRegistration(String employeeName, String shiftDate, String shiftTime, String notes) {
+        String query = "INSERT INTO ShiftRegistration (employee_id, shift_date, shift_time, notes) "
+                + "VALUES ((SELECT user_id FROM Users WHERE full_name = ?), ?, ?, ?)";
+
+        try ( PreparedStatement ps = getConnection().prepareStatement(query)) {
+            ps.setString(1, employeeName); // Tên nhân viên
+            ps.setString(2, shiftDate);    // Ngày đăng ký ca làm
+            ps.setString(3, shiftTime);    // Khung giờ đăng ký
+            ps.setString(4, notes);        // Ghi chú thêm
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("❌ Lỗi khi chèn đơn đăng ký ca: " + e.getMessage());
+            return false;
+        }
+    }
+
+   public boolean duyetCaLam(int registrationId, String managerName, String requestStatus) {
+    String checkManagerQuery = "SELECT user_id FROM Users WHERE full_name = ?";
+    String updateQuery = "UPDATE sr "
+            + "SET sr.manager_id = u2.user_id, "
+            + "sr.approval_date = GETDATE(), "
+            + "sr.request_status = ? "  // Thêm tham số trạng thái ở đây
+            + "FROM ShiftRegistration sr "
+            + "JOIN Users u2 ON u2.full_name = ? "
+            + "WHERE sr.registration_id = ?";
+
+    try (Connection conn = getConnection(); PreparedStatement checkStmt = conn.prepareStatement(checkManagerQuery)) {
+        checkStmt.setString(1, managerName);  // Truyền tên quản lý vào câu truy vấn
+        try (ResultSet rs = checkStmt.executeQuery()) {
             if (rs.next()) {
-                employeeId = rs.getInt("user_id");
+                // Nếu quản lý tồn tại, thực hiện cập nhật
+                int managerId = rs.getInt("user_id");
+
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                    updateStmt.setString(1, requestStatus);  // Truyền trạng thái vào câu truy vấn
+                    updateStmt.setString(2, managerName);  // Truyền tên quản lý vào câu truy vấn
+                    updateStmt.setInt(3, registrationId);  // Truyền ID đăng ký ca làm việc
+
+                    int affectedRows = updateStmt.executeUpdate();
+                    return affectedRows > 0;
+                }
             } else {
-                System.out.println("❌ Lỗi: Nhân viên '" + employeeName + "' không tồn tại!");
+                System.out.println("❌ Quản lý không tồn tại: " + managerName);
                 return false;
             }
         }
-
-        // 🔍 Tìm manager_id (nếu có)
-        if (managerName != null && !managerName.isEmpty()) {
-            try (PreparedStatement ps = conn.prepareStatement(getUserIdQuery)) {
-                ps.setString(1, managerName);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    managerId = rs.getInt("user_id");
-                } else {
-                    System.out.println("⚠ Cảnh báo: Quản lý '" + managerName + "' không tồn tại! Sẽ để NULL.");
-                }
-            }
-        }
-
-        // 🔍 Tìm replacement_employee_id (nếu có)
-        if (replacementEmployeeName != null && !replacementEmployeeName.isEmpty()) {
-            try (PreparedStatement ps = conn.prepareStatement(getUserIdQuery)) {
-                ps.setString(1, replacementEmployeeName);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    replacementEmployeeId = rs.getInt("user_id");
-                } else {
-                    System.out.println("⚠ Cảnh báo: Nhân viên thay thế '" + replacementEmployeeName + "' không tồn tại! Sẽ để NULL.");
-                }
-            }
-        }
-
-        // ✅ Cập nhật lịch làm việc trong StaffSchedule
-        String updateQuery = "UPDATE StaffSchedule SET employee_id = ?, shift_date = ?, shift_time = ?, status = ?, notes = ?, manager_id = ?, replacement_employee_id = ? WHERE schedule_id = ?";
-
-        try (PreparedStatement ps = conn.prepareStatement(updateQuery)) {
-            ps.setInt(1, employeeId);
-            ps.setString(2, shiftDate);
-            ps.setString(3, shiftTime);
-            ps.setString(4, status);
-            ps.setString(5, notes);
-            ps.setObject(6, (managerId != null) ? managerId : null, java.sql.Types.INTEGER);
-            ps.setObject(7, (replacementEmployeeId != null) ? replacementEmployeeId : null, java.sql.Types.INTEGER);
-            ps.setInt(8, scheduleId);
-
-            int rowsUpdated = ps.executeUpdate();
-            return rowsUpdated > 0;
-        }
-
     } catch (SQLException e) {
-        System.out.println("❌ Lỗi khi cập nhật lịch làm việc: " + e.getMessage());
+        System.out.println("❌ Lỗi khi từ chối đơn đăng ký ca làm việc: " + e.getMessage());
         return false;
     }
 }
+
 
 }

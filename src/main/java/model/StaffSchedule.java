@@ -8,70 +8,77 @@ package model;
  *
  * @author Vo Truong Qui - CE181170
  */
-
-
 public class StaffSchedule {
+
     private int shiftId; // shift_id
     private int employeeId; // employee_id
-     private String employeeName;
+    private String employeeName;
     private String shiftDate; // shift_date
     private String shiftTime; // shift_time
     private String status; // status
     private String notes; // notes
     private Integer managerId; // manager_id (có thể NULL)
+    private String managerName;
+
     private String replacementEmployeeName;
     private Integer replacementEmployeeId; // Sửa từ String thành Integer
 
 // Constructor mới
-public StaffSchedule(int shiftId, int employeeId, String employeeName, String shiftDate, String shiftTime, String status, String notes, Integer managerId, Integer replacementEmployeeId) {
-    this.shiftId = shiftId;
-    this.employeeId = employeeId;
-    this.employeeName = employeeName;
-    this.shiftDate = shiftDate;
-    this.shiftTime = shiftTime;
-    this.status = status;
-    this.notes = notes;
-    this.managerId = managerId;
-    this.replacementEmployeeId = replacementEmployeeId;
-}
-public StaffSchedule(int shiftId, int employeeId, String shiftDate, String shiftTime, String status, String notes, Integer managerId, Integer replacementEmployeeId) {
-    this.shiftId = shiftId;
-    this.employeeId = employeeId;
-    this.shiftDate = shiftDate;
-    this.shiftTime = shiftTime;
-    this.status = status;
-    this.notes = notes;
-    this.managerId = managerId;
-    this.replacementEmployeeId = replacementEmployeeId;
-}
+    public StaffSchedule(int shiftId, String employeeName, String shiftDate, String shiftTime, String status, String notes, String managerName, String replacementEmployeeName) {
+        this.shiftId = shiftId;
+        this.employeeName = employeeName;
+        this.shiftDate = shiftDate;
+        this.shiftTime = shiftTime;
+        this.status = status;
+        this.notes = notes;
+        this.managerName = managerName;
+        this.replacementEmployeeName = replacementEmployeeName;
+    }
 
+    public StaffSchedule(int shiftId, int employeeId, String employeeName, String shiftDate, String shiftTime, String status, String notes, Integer managerId, Integer replacementEmployeeId) {
+        this.shiftId = shiftId;
+        this.employeeId = employeeId;
+        this.employeeName = employeeName;
+        this.shiftDate = shiftDate;
+        this.shiftTime = shiftTime;
+        this.status = status;
+        this.notes = notes;
+        this.managerId = managerId;
+        this.replacementEmployeeId = replacementEmployeeId;
+    }
+
+    public StaffSchedule(int shiftId, int employeeId, String shiftDate, String shiftTime, String status, String notes, Integer managerId, Integer replacementEmployeeId) {
+        this.shiftId = shiftId;
+        this.employeeId = employeeId;
+        this.shiftDate = shiftDate;
+        this.shiftTime = shiftTime;
+        this.status = status;
+        this.notes = notes;
+        this.managerId = managerId;
+        this.replacementEmployeeId = replacementEmployeeId;
+    }
 
 // Getter & Setter mới
-public Integer getReplacementEmployeeId() {
-    return replacementEmployeeId;
-}
+    public Integer getReplacementEmployeeId() {
+        return replacementEmployeeId;
+    }
 
-public void setReplacementEmployeeId(Integer replacementEmployeeId) {
-    this.replacementEmployeeId = replacementEmployeeId;
-}
-
-    
-   
+    public void setReplacementEmployeeId(Integer replacementEmployeeId) {
+        this.replacementEmployeeId = replacementEmployeeId;
+    }
 
     // Constructor đầy đủ
-
- public StaffSchedule(int shiftId, int employeeId, String employeeName, String shiftDate, String shiftTime, String status, String notes, Integer managerId, String replacementEmployeeName) {
-    this.shiftId = shiftId;
-    this.employeeId = employeeId;
-    this.employeeName = employeeName;
-    this.shiftDate = shiftDate;
-    this.shiftTime = shiftTime;
-    this.status = status;
-    this.notes = notes;
-    this.managerId = managerId;
-    this.replacementEmployeeName = replacementEmployeeName;
-}
-
+    public StaffSchedule(int shiftId, int employeeId, String employeeName, String shiftDate, String shiftTime, String status, String notes, Integer managerId, String replacementEmployeeName) {
+        this.shiftId = shiftId;
+        this.employeeId = employeeId;
+        this.employeeName = employeeName;
+        this.shiftDate = shiftDate;
+        this.shiftTime = shiftTime;
+        this.status = status;
+        this.notes = notes;
+        this.managerId = managerId;
+        this.replacementEmployeeName = replacementEmployeeName;
+    }
 
     public String getReplacementEmployeeName() {
         return replacementEmployeeName;
@@ -81,10 +88,6 @@ public void setReplacementEmployeeId(Integer replacementEmployeeId) {
         this.replacementEmployeeName = replacementEmployeeName;
     }
 
-
-
-
-
     public String getEmployeeName() {
         return employeeName;
     }
@@ -92,7 +95,6 @@ public void setReplacementEmployeeId(Integer replacementEmployeeId) {
     public void setEmployeeName(String employeeName) {
         this.employeeName = employeeName;
     }
-
 
     // Getters và Setters
     public int getShiftId() {
