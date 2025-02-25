@@ -1,12 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="model.Account" %>
-<%
-    Account account = (Account) session.getAttribute("account");
-    if (account == null) {
-        response.sendRedirect("LoginView.jsp");
-        return;
-    }
-%>
+<%@ page session="true" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -14,54 +7,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            margin: 50px;
+        .user-menu {
+            position: relative;
+            display: inline-block;
         }
-        .container {
-            max-width: 600px;
-            background: white;
-            padding: 20px;
-            margin: auto;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        .user-menu-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            min-width: 200px;
+            z-index: 1;
         }
-        h2 {
-            color: #333;
-        }
-        .info {
-            text-align: left;
-            margin-top: 20px;
-        }
-        .logout {
-            background-color: #ff4b5c;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .user-menu-content a {
+            display: block;
+            padding: 10px;
             text-decoration: none;
+            color: black;
         }
-        .logout:hover {
-            background-color: #d43848;
+        .user-menu-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .user-menu:hover .user-menu-content {
+            display: block;
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h2>Chào mừng, <%= account.getFullName() != null ? account.getFullName() : account.getUsername() %>!</h2>
-        <div class="info">
-            <p><strong>Email:</strong> <%= account.getEmail() %></p>
-            <p><strong>Số điện thoại:</strong> <%= account.getPhoneNumber() != null ? account.getPhoneNumber() : "Chưa cập nhật" %></p>
-            <p><strong>Địa chỉ:</strong> <%= account.getAddress() != null ? account.getAddress() : "Chưa cập nhật" %></p>
-            <p><strong>Vai trò:</strong> <%= account.getRole() %></p>
-        </div>
-        <br>
-        <a href="LogoutController" class="logout">Đăng xuất</a>
-    </div>
-
+    <header>
+        <% 
+            String username = (String) session.getAttribute("username");
+            if (username != null) {
+        %>
+            <div class="user-menu">
+                <span>Xin chào, <%= username %></span>
+                <div class="user-menu-content">
+                    <a href="#">Quản lý hồ sơ</a>
+                    <a href="#">Quản lý đơn hàng</a>
+                    <a href="#">Quản lý giỏ hàng</a>
+                    <a href="#">Quản lý voucher</a>
+                    <a href="#">Quản lý phản hồi</a>
+                    <a href="logout.jsp">Đăng xuất</a>
+                </div>
+            </div>
+        <% } else { %>
+            <a href="login.jsp">Đăng nhập</a> | <a href="register.jsp">Đăng ký</a>
+        <% } %>
+    </header>
 </body>
 </html>
